@@ -1,0 +1,96 @@
+2025-08-21 08:03:11,932 [INFO] Database is empty. Fetching 5 years of historical data...
+2025-08-21 08:03:11,932 [INFO] Fetching data for stock: AAPL from 2020-08-22 to 2025-08-21...
+2025-08-21 08:03:12,824 [INFO] Fetching data for stock: GOOGL from 2020-08-22 to 2025-08-21...
+2025-08-21 08:03:13,238 [INFO] Fetching data for stock: MSFT from 2020-08-22 to 2025-08-21...
+2025-08-21 08:03:13,640 [INFO] Fetching data for stock: AMZN from 2020-08-22 to 2025-08-21...
+2025-08-21 08:03:13,972 [INFO] Fetching data for stock: TSLA from 2020-08-22 to 2025-08-21...
+2025-08-21 08:03:14,306 [INFO] Fetching data for stock: META from 2020-08-22 to 2025-08-21...
+2025-08-21 08:03:14,668 [INFO] Fetching data for stock: NVDA from 2020-08-22 to 2025-08-21...
+2025-08-21 08:03:15,151 [INFO] Inserted/updated 1254 rows for AAPL in D:/Stock_Analysis/data/AAPL.db.
+2025-08-21 08:03:15,233 [INFO] Inserted/updated 1254 rows for GOOGL in D:/Stock_Analysis/data/GOOGL.db.
+2025-08-21 08:03:15,316 [INFO] Inserted/updated 1254 rows for MSFT in D:/Stock_Analysis/data/MSFT.db.
+2025-08-21 08:03:15,406 [INFO] Inserted/updated 1254 rows for AMZN in D:/Stock_Analysis/data/AMZN.db.
+2025-08-21 08:03:15,543 [INFO] Inserted/updated 1254 rows for TSLA in D:/Stock_Analysis/data/TSLA.db.
+2025-08-21 08:03:15,651 [INFO] Inserted/updated 1254 rows for META in D:/Stock_Analysis/data/META.db.
+2025-08-21 08:03:15,753 [INFO] Inserted/updated 1254 rows for NVDA in D:/Stock_Analysis/data/NVDA.db.
+2025-08-21 08:03:15,826 [INFO] Sample data for AAPL:
+         Date Stock        Open        High         Low       Close   Adj_Close     Volume  Daily_Return  Volatility  MA20  MA50  Sharpe_Ratio
+0  2020-08-20  AAPL  115.750000  118.392502  115.732498  118.275002  115.048195  126907200           NaN         NaN   NaN   NaN           NaN
+1  2020-08-21  AAPL  119.262497  124.867500  119.250000  124.370003  120.976921  338054800      0.051532         NaN   NaN   NaN           NaN
+2  2020-08-24  AAPL  128.697495  128.785004  123.937500  125.857498  122.423836  345937600           NaN         NaN   NaN   NaN           NaN
+3  2020-08-25  AAPL  124.697502  125.180000  123.052498  124.824997  121.419495  211495600     -0.008204         NaN   NaN   NaN           NaN
+4  2020-08-26  AAPL  126.180000  126.992500  125.082497  126.522499  123.070679  163022400      0.013599         NaN   NaN   NaN           NaN
+2025-08-21 08:03:15,842 [INFO] Sample data for GOOGL:
+         Date  Stock       Open       High        Low      Close  Adj_Close    Volume  Daily_Return  Volatility  MA20  MA50  Sharpe_Ratio
+0  2020-08-20  GOOGL  76.998497  79.008499  76.723000  78.812500  78.342651  26382000           NaN         NaN   NaN   NaN           NaN
+1  2020-08-21  GOOGL  78.589996  79.594002  78.115501  78.778503  78.308853  34838000     -0.000431         NaN   NaN   NaN           NaN
+2  2020-08-24  GOOGL  79.623497  80.439003  78.751999  79.257500  78.784996  25638000           NaN         NaN   NaN   NaN           NaN
+3  2020-08-25  GOOGL  79.004997  80.444000  78.893997  80.292503  79.813828  25150000      0.013059         NaN   NaN   NaN           NaN
+4  2020-08-26  GOOGL  80.315002  82.639503  80.049004  82.206497  81.716415  52188000      0.023838         NaN   NaN   NaN           NaN
+2025-08-21 08:03:15,859 [INFO] Sample data for MSFT:
+         Date Stock        Open        High         Low       Close   Adj_Close    Volume  Daily_Return  Volatility  MA20  MA50  Sharpe_Ratio
+0  2020-08-20  MSFT  209.539993  215.000000  208.910004  214.580002  206.082962  26981500           NaN         NaN   NaN   NaN           NaN
+1  2020-08-21  MSFT  213.860001  216.250000  212.850006  213.020004  204.584763  36249300     -0.007270         NaN   NaN   NaN           NaN
+2  2020-08-24  MSFT  214.789993  215.520004  212.429993  213.690002  205.228195  25460100           NaN         NaN   NaN   NaN           NaN
+3  2020-08-25  MSFT  213.100006  216.610001  213.100006  216.470001  207.898163  23043700      0.013009         NaN   NaN   NaN           NaN
+4  2020-08-26  MSFT  217.880005  222.089996  217.360001  221.149994  212.392807  39600800      0.021620         NaN   NaN   NaN           NaN
+2025-08-21 08:03:15,876 [INFO] Sample data for AMZN:
+         Date Stock        Open        High         Low       Close   Adj_Close     Volume  Daily_Return  Volatility  MA20  MA50  Sharpe_Ratio
+0  2020-08-20  AMZN  162.600006  165.630997  161.899994  164.868500  164.868500   66650000           NaN         NaN   NaN   NaN           NaN
+1  2020-08-21  AMZN  164.750000  165.720001  163.769501  164.235992  164.235992   71518000     -0.003836         NaN   NaN   NaN           NaN
+2  2020-08-24  AMZN  165.507507  169.016006  162.878006  165.373001  165.373001   93326000           NaN         NaN   NaN   NaN           NaN
+3  2020-08-25  AMZN  164.749496  167.869995  163.350006  167.324493  167.324493   79856000      0.011801         NaN   NaN   NaN           NaN
+4  2020-08-26  AMZN  167.555496  172.587006  167.228500  172.092499  172.092499  130174000      0.028496         NaN   NaN   NaN           NaN
+2025-08-21 08:03:15,884 [INFO] Sample data for TSLA:
+         Date Stock        Open        High         Low       Close   Adj_Close     Volume  Daily_Return  Volatility  MA20  MA50  Sharpe_Ratio
+0  2020-08-20  TSLA  124.045334  134.799332  123.804001  133.455338  133.455338  309177000           NaN         NaN   NaN   NaN           NaN
+1  2020-08-21  TSLA  136.317337  139.699326  135.003326  136.665329  136.665329  322344000      0.024053         NaN   NaN   NaN           NaN
+2  2020-08-24  TSLA  141.751999  141.933334  128.501328  134.279999  134.279999  300954000           NaN         NaN   NaN   NaN           NaN
+3  2020-08-25  TSLA  131.659332  135.196671  131.199997  134.889328  134.889328  159883500      0.004538         NaN   NaN   NaN           NaN
+4  2020-08-26  TSLA  137.333328  144.399994  136.908661  143.544662  143.544662  213591000      0.064166         NaN   NaN   NaN           NaN
+2025-08-21 08:03:15,900 [INFO] Sample data for META:
+         Date Stock        Open        High         Low       Close   Adj_Close    Volume  Daily_Return  Volatility  MA20  MA50  Sharpe_Ratio
+0  2020-08-20  META  261.500000  269.630005  261.459991  269.010010  267.542297  20299700           NaN         NaN   NaN   NaN           NaN
+1  2020-08-21  META  268.690002  270.489990  266.420013  267.010010  265.553162  15538600     -0.007435         NaN   NaN   NaN           NaN
+2  2020-08-24  META  271.070007  277.250000  268.769989  271.390015  269.909271  23685600           NaN         NaN   NaN   NaN           NaN
+3  2020-08-25  META  272.410004  283.089996  270.260010  280.820007  279.287811  42127200      0.034747         NaN   NaN   NaN           NaN
+4  2020-08-26  META  284.000000  304.670013  284.000000  303.910004  302.251801  69015200      0.082223         NaN   NaN   NaN           NaN
+2025-08-21 08:03:15,918 [INFO] Sample data for NVDA:
+         Date Stock      Open      High       Low     Close  Adj_Close     Volume  Daily_Return  Volatility  MA20  MA50  Sharpe_Ratio
+0  2020-08-20  NVDA  11.97500  12.37500  11.87875  12.14100  12.101112  921388000           NaN         NaN   NaN   NaN           NaN
+1  2020-08-21  NVDA  12.20175  12.80875  12.19525  12.68350  12.641831  999868000      0.044683         NaN   NaN   NaN           NaN
+2  2020-08-24  NVDA  12.88375  12.91250  12.50750  12.72025  12.678460  490564000           NaN         NaN   NaN   NaN           NaN
+3  2020-08-25  NVDA  12.63075  12.76125  12.57375  12.75000  12.708113  289076000      0.002339         NaN   NaN   NaN           NaN
+4  2020-08-26  NVDA  12.79925  12.86850  12.67775  12.77300  12.731036  321244000      0.001804         NaN   NaN   NaN           NaN
+2025-08-21 08:03:15,925 [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-21 08:03:15,925 [INFO] Daily scheduler started (non-blocking). Waiting for jobs...
+2025-08-21 08:03:15,925 [INFO] Added job "fetch_and_store_daily" to job store "default"
+2025-08-21 08:03:15,925 [INFO] Scheduler started
+2025-08-21 08:05:47,371 [INFO] Database is empty. Fetching 5 years of historical data...
+2025-08-21 08:05:47,371 [INFO] Fetching data for stock: AAPL from 2020-08-22 to 2025-08-21...
+2025-08-21 08:05:48,572 [INFO] Inserted/updated 1254 rows for AAPL in D:/AAPL_STOCK_APP/AAPL.db.
+2025-08-21 08:05:48,629 [INFO] Sample data for AAPL:
+         Date Stock        Open        High         Low       Close   Adj_Close     Volume  Daily_Return  Volatility  MA20  MA50  Sharpe_Ratio
+0  2020-08-24  AAPL  128.697495  128.785004  123.937500  125.857498  122.423813  345937600           NaN         NaN   NaN   NaN           NaN
+1  2020-08-25  AAPL  124.697502  125.180000  123.052498  124.824997  121.419502  211495600     -0.008204         NaN   NaN   NaN           NaN
+2  2020-08-26  AAPL  126.180000  126.992500  125.082497  126.522499  123.070694  163022400      0.013599         NaN   NaN   NaN           NaN
+3  2020-08-27  AAPL  127.142502  127.485001  123.832497  125.010002  121.599472  155552400     -0.011954         NaN   NaN   NaN           NaN
+4  2020-08-28  AAPL  126.012497  126.442497  124.577499  124.807503  121.402466  187630000     -0.001620         NaN   NaN   NaN           NaN
+2025-08-21 08:05:48,630 [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-21 08:05:48,630 [INFO] Daily scheduler started (non-blocking). Waiting for jobs...
+2025-08-21 08:05:48,630 [INFO] Added job "fetch_and_store_daily" to job store "default"
+2025-08-21 08:05:48,630 [INFO] Scheduler started
+2025-08-21 08:06:15,226 [INFO] Database is empty. Fetching 5 years of historical data...
+2025-08-21 08:06:15,226 [INFO] Fetching data for stock: AAPL from 2020-08-22 to 2025-08-21...
+2025-08-21 08:06:16,056 [INFO] Inserted/updated 1254 rows for AAPL in D:/AAPL_STOCK_APP/AAPL.db.
+2025-08-21 08:06:16,137 [INFO] Sample data for AAPL:
+         Date Stock        Open        High         Low       Close   Adj_Close     Volume  Daily_Return  Volatility  MA20  MA50  Sharpe_Ratio
+0  2020-08-24  AAPL  128.697495  128.785004  123.937500  125.857498  122.423813  345937600           NaN         NaN   NaN   NaN           NaN
+1  2020-08-25  AAPL  124.697502  125.180000  123.052498  124.824997  121.419495  211495600     -0.008204         NaN   NaN   NaN           NaN
+2  2020-08-26  AAPL  126.180000  126.992500  125.082497  126.522499  123.070679  163022400      0.013599         NaN   NaN   NaN           NaN
+3  2020-08-27  AAPL  127.142502  127.485001  123.832497  125.010002  121.599464  155552400     -0.011954         NaN   NaN   NaN           NaN
+4  2020-08-28  AAPL  126.012497  126.442497  124.577499  124.807503  121.402489  187630000     -0.001620         NaN   NaN   NaN           NaN
+2025-08-21 08:06:16,153 [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-21 08:06:16,153 [INFO] Daily scheduler started (non-blocking). Waiting for jobs...
+2025-08-21 08:06:16,153 [INFO] Added job "fetch_and_store_daily" to job store "default"
+2025-08-21 08:06:16,153 [INFO] Scheduler started

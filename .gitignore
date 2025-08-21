@@ -1,0 +1,24 @@
+# Ignore Python virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# OS/editor files
+.DS_Store
+.vscode/
+.idea/
+
+# Data / large files (optional)
+data/
+datasets/
+*.pkl
+*.h5
+*.joblib
