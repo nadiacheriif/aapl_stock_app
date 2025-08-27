@@ -1,104 +1,72 @@
 from flask import Flask, render_template, request
-import yfinance as yf
 import pandas as pd
 import numpy as np
 import sqlite3
-from datetime import datetime, timedelta
-from sklearn.preprocessing import MinMaxScaler
-from tensorflow.keras.models import Sequential, load_model
-from tensorflow.keras.layers import GRU, Dense
-from apscheduler.schedulers.background import BackgroundScheduler
 import os
-from pandas.tseries.offsets import BusinessDay
+import logging
+from datetime import datetime
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.layers import GRU, Dense, Input
+from tensorflow.keras.optimizers import Adam
+from apscheduler.schedulers.background import BackgroundScheduler
+import matplotlib
+matplotlib.use('Agg')  # no GUI backend
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
 from math import sqrt
-from sklearn.metrics import mean_squared_error
-import requests
-import time
-import logging
+from init_db import query_stock_data
+from pandas.tseries.offsets import BusinessDay
 
+# --- App Setup ---
 app = Flask(__name__)
-
-# Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Constants
-DB_PATH = 'AAPL.db'
-MODEL_PATH = 'gru_model.h5'
+# --- Constants ---
+DB_PATH = 'D:/AAPL_STOCK_APP/AAPL.db'
+MODEL_PATH = 'gru_model.keras'
 LOOKBACK = 60
 TARGET = 'Close'
-ERROR_THRESHOLD = 5.0
-CONFIDENCE_INTERVAL = 1.96 * 4.82  # 95% CI based on GRU RMSE
+ERROR_THRESHOLD = 6.5
+CONFIDENCE_INTERVAL = 1.96 * 6.268
+LEARNING_RATE = 0.1
 
-# DB Connection
-def get_db_connection():
-    conn = sqlite3.connect(DB_PATH)
-    return conn
+# --- RL Agent ---
+class RLAgent:
+    def __init__(self):
+        self.q_table = {}
+        self.state = None
+        self.last_reward = 0
 
-# Fetch and Update Data
-def fetch_data_with_retry(ticker, start, end, retries=3, delay=5):
-    session = requests.Session()
-    session.headers.update({
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-    })
-    for attempt in range(retries):
-        try:
-            data = yf.download(ticker, start=start, end=end, progress=False, session=session)
-            if not data.empty:
-                logging.info(f"Fetched {len(data)} rows for {ticker}")
-                return data
-            logging.warning(f"Attempt {attempt + 1}: No data fetched for {ticker}")
-        except Exception as e:
-            logging.error(f"Attempt {attempt + 1}: Error fetching {ticker}: {e}")
-        if attempt < retries - 1:
-            time.sleep(delay)
-    return pd.DataFrame()
+    def get_state(self, rmse):
+        return f"rmse_{int(rmse * 10)}"
 
-def fetch_and_update_data(ticker='AAPL'):
-    try:
-        conn = get_db_connection()
-        df_existing = pd.read_sql(f"SELECT * FROM stock_prices WHERE Stock = '{ticker}'", conn, parse_dates=['Date'])
-        last_date = df_existing['Date'].max() if not df_existing.empty else pd.to_datetime('2020-01-01')
+    def choose_action(self, state):
+        return "adjust" if np.random.random() < 0.1 else "no_adjust"
 
-        start_date = (last_date + timedelta(days=1)).strftime('%Y-%m-%d')
-        end_date = (datetime.now().date() - timedelta(days=1)).strftime('%Y-%m-%d')
-        if start_date >= end_date:
-            return df_existing
+    def update_q_value(self, state, action, reward, next_state):
+        current_q = self.q_table.get((state, action), 0.0)
+        self.q_table[(state, action)] = current_q + LEARNING_RATE * (
+            reward + 0.9 * max(
+                self.q_table.get((next_state, "adjust"), 0.0),
+                self.q_table.get((next_state, "no_adjust"), 0.0)
+            ) - current_q
+        )
 
-        new_data = fetch_data_with_retry(ticker, start_date, end_date)
-        if new_data.empty:
-            logging.warning(f"No new data fetched for {ticker}")
-            return df_existing
+agent = RLAgent()
 
-        new_data.reset_index(inplace=True)
-        new_data['Stock'] = ticker
-        new_data = new_data[['Date', 'Stock', 'Open', 'High', 'Low', 'Close', 'Adj_Close', 'Volume']]
-        new_data.to_sql('stock_prices', conn, if_exists='append', index=False)
-
-        df = pd.read_sql(f"SELECT * FROM stock_prices WHERE Stock = '{ticker}'", conn, parse_dates=['Date'])
-        conn.close()
-
-        df.set_index('Date', inplace=True)
-        df.sort_index(inplace=True)
-        df['Daily_Return'] = df['Close'].pct_change()
-        df['Volatility'] = df['Daily_Return'].rolling(window=20).std() * np.sqrt(252)
-        df['MA20'] = df['Close'].rolling(window=20).mean()
-        df['MA50'] = df['Close'].rolling(window=50).mean()
-        df['Sharpe_Ratio'] = df['Daily_Return'].rolling(window=20).mean() / (df['Volatility'] / np.sqrt(252))
-        df.dropna(inplace=True)
-
-        conn = get_db_connection()
-        df.reset_index().to_sql('stock_prices', conn, if_exists='replace', index=False)
-        conn.close()
-
-        return df
-    except Exception as e:
-        logging.error(f"Error fetching/updating data for {ticker}: {e}")
+# --- Helper Functions ---
+def fetch_and_clean_data(ticker='AAPL'):
+    df = query_stock_data(ticker, DB_PATH)
+    if df.empty:
+        logging.error(f"No data available for {ticker} in {DB_PATH}")
         return pd.DataFrame()
-
-# Create Sequences
+    df['Date'] = pd.to_datetime(df['Date'])
+    df.set_index('Date', inplace=True)
+    df = df.sort_index()
+    return df.dropna()
 def create_sequences(data, lookback=LOOKBACK):
     X, y = [], []
     for i in range(len(data) - lookback):
@@ -106,176 +74,201 @@ def create_sequences(data, lookback=LOOKBACK):
         y.append(data[i+lookback])
     return np.array(X), np.array(y)
 
-# Retrain with Error Check
-def retrain_gru_with_errors(ticker='AAPL'):
-    df = fetch_and_update_data(ticker)
+def calculate_metrics(actual, predicted):
+    mae = mean_absolute_error(actual, predicted)
+    rmse = sqrt(mean_squared_error(actual, predicted))
+    mape = np.mean(np.abs((actual - predicted) / actual)) * 100
+    return {"MAE": mae, "RMSE": rmse, "MAPE": mape}
+
+def train_or_update_model(df, model_path):
     if df.empty or len(df) < LOOKBACK + 10:
-        logging.warning(f"Insufficient data for retraining {ticker}")
-        return
+        logging.warning("Insufficient data for training")
+        return None, {}
 
     scaler = MinMaxScaler(feature_range=(0, 1))
     series = df[TARGET].values.reshape(-1, 1)
     scaled_series = scaler.fit_transform(series)
 
-    model_path = f"{ticker}_{MODEL_PATH}"
     if os.path.exists(model_path):
         model = load_model(model_path)
     else:
         model = Sequential()
-        model.add(GRU(50, return_sequences=True, input_shape=(LOOKBACK, 1)))
+        model.add(Input(shape=(LOOKBACK, 1)))
+        model.add(GRU(50, return_sequences=True))
         model.add(GRU(50))
         model.add(Dense(1))
-        model.compile(optimizer='adam', loss='mean_squared_error')
+        model.compile(optimizer=Adam(learning_rate=0.001), loss='mean_squared_error')
 
+    X, y = create_sequences(scaled_series)
+    if len(X) == 0:
+        return model, {}
+
+    X = X.reshape((X.shape[0], LOOKBACK, 1))
+
+    # --- RL Adjustment ---
     recent_start = max(0, len(scaled_series) - 100 - LOOKBACK)
     series_recent = scaled_series[recent_start:]
     X_recent, y_recent = create_sequences(series_recent)
-    if len(X_recent) == 0:
-        logging.warning(f"Not enough recent data for error check on {ticker}")
-        return
-    X_recent = X_recent.reshape((X_recent.shape[0], LOOKBACK, 1))
-    preds_scaled = model.predict(X_recent, verbose=0)
-    preds = scaler.inverse_transform(preds_scaled).flatten()
-    actual = scaler.inverse_transform(y_recent).flatten()
-    rmse = sqrt(mean_squared_error(actual, preds))
 
-    if rmse > ERROR_THRESHOLD or not os.path.exists(model_path):
-        X, y = create_sequences(scaled_series)
-        X = X.reshape((X.shape[0], X.shape[1], 1))
-        model.fit(X, y, epochs=10, batch_size=32, verbose=1)
-        model.save(model_path)
-        logging.info(f"Retrained GRU for {ticker}. RMSE: {rmse:.2f}")
+    metrics = {}
+    if len(X_recent) > 0:
+        X_recent = X_recent.reshape((X_recent.shape[0], LOOKBACK, 1))
+        preds_scaled = model.predict(X_recent, verbose=0)
+        preds = scaler.inverse_transform(preds_scaled).flatten()
+        actual = scaler.inverse_transform(y_recent).flatten()
 
-# Scheduler (Daily Update, Quarterly Retrain)
-scheduler = BackgroundScheduler()
-scheduler.add_job(lambda: fetch_and_update_data('AAPL'), 'cron', day_of_week='mon-fri', hour=0)
-scheduler.add_job(lambda: retrain_gru_with_errors('AAPL'), 'cron', month='1,4,7,10', day=1, hour=0)
-scheduler.start()
+        metrics["short_term"] = calculate_metrics(actual, preds)
 
-# Generate Predictions
-def generate_predictions(model, scaler, last_sequence, steps):
-    predictions = []
-    lower_bounds = []
-    upper_bounds = []
+        rmse = metrics["short_term"]["RMSE"]
+        state = agent.get_state(rmse)
+        action = agent.choose_action(state)
+        reward = -rmse if rmse > ERROR_THRESHOLD else 1.0 / (rmse + 1e-5)
+        next_state = agent.get_state(rmse * 0.9 if action == "adjust" else rmse)
+        agent.update_q_value(state, action, reward, next_state)
+
+        if action == "adjust" and rmse > ERROR_THRESHOLD:
+            model.fit(X, y, epochs=10, batch_size=32, verbose=0)
+            logging.info(f"Model adjusted due to high RMSE: {rmse:.2f}")
+
+        # Long-term evaluation (use last 252 days)
+        long_start = max(0, len(scaled_series) - 252 - LOOKBACK)
+        X_long, y_long = create_sequences(scaled_series[long_start:])
+        if len(X_long) > 0:
+            X_long = X_long.reshape((X_long.shape[0], LOOKBACK, 1))
+            preds_long = scaler.inverse_transform(model.predict(X_long, verbose=0)).flatten()
+            actual_long = scaler.inverse_transform(y_long).flatten()
+            metrics["long_term"] = calculate_metrics(actual_long, preds_long)
+
+    model.save(model_path)
+    return model, metrics
+
+def generate_predictions(model, scaler, last_sequence, steps, volatility):
+    predictions, lower_bounds, upper_bounds = [], [], []
     current_seq = last_sequence.copy()
     for _ in range(steps):
         pred_scaled = model.predict(current_seq.reshape(1, LOOKBACK, 1), verbose=0)
         pred = scaler.inverse_transform(pred_scaled)[0][0]
-        predictions.append(pred)
-        lower_bounds.append(pred - CONFIDENCE_INTERVAL)
-        upper_bounds.append(pred + CONFIDENCE_INTERVAL)
+        adjusted_pred = pred + (volatility * np.random.normal(0, 0.1))
+        predictions.append(adjusted_pred)
+        ci_adjustment = CONFIDENCE_INTERVAL * (volatility / 10)
+        lower_bounds.append(adjusted_pred - ci_adjustment)
+        upper_bounds.append(adjusted_pred + ci_adjustment)
         current_seq = np.append(current_seq[1:], pred_scaled, axis=0)
     return predictions, lower_bounds, upper_bounds
 
 def get_future_dates(last_date, steps):
-    future_dates = [last_date + BusinessDay(n) for n in range(1, steps + 1)]
-    return pd.to_datetime(future_dates)
+    return pd.to_datetime([last_date + BusinessDay(n) for n in range(1, steps + 1)])
 
-# Routes
+def generate_trading_signal(last_close, final_pred, overall_pct, volatility, lower_bound, upper_bound):
+    threshold = 2.0
+    ci_width = (upper_bound - lower_bound) / last_close * 100
+    confidence = "High" if ci_width < 2 else "Medium" if ci_width < 5 else "Low"
+
+    if volatility > 0.03:
+        return "HOLD", f"High volatility ({volatility:.2f}), staying neutral.", confidence
+
+    if overall_pct > threshold:
+        return "BUY", f"Predicted increase {overall_pct:.2f}% (from {last_close:.2f} to {final_pred:.2f}).", confidence
+    elif overall_pct < -threshold:
+        return "SELL", f"Predicted decrease {overall_pct:.2f}% (from {last_close:.2f} to {final_pred:.2f}).", confidence
+    else:
+        return "HOLD", f"Small predicted change ({overall_pct:.2f}%).", confidence
+
+# --- Routes ---
 @app.route('/', methods=['GET', 'POST'])
 def dashboard():
     ticker = request.form.get('ticker', 'AAPL')
-    df = fetch_and_update_data(ticker)
-    
-    # Default template variables
-    error = None
-    historical_plot = {}
-    df_tail = "<p>No recent data available.</p>"
-    results = [
-        {'Model': 'ARIMA', 'MAE': 14.50, 'RMSE': 18.15, 'MAPE': 'N/A'},
-        {'Model': 'Prophet', 'MAE': 21.31, 'RMSE': 27.04, 'MAPE': 10.02},
-        {'Model': 'XGBoost', 'MAE': 8.57, 'RMSE': 11.55, 'MAPE': 3.76},
-        {'Model': 'LSTM', 'MAE': 5.12, 'RMSE': 6.98, 'MAPE': 2.35},
-        {'Model': 'GRU (Best)', 'MAE': 3.23, 'RMSE': 4.82, 'MAPE': 1.49}
-    ]
-    prediction_plot = None
-    pred_table = None
-    overall_pct_str = None
     term = request.form.get('term', 'short')
+    df = fetch_and_clean_data(ticker)
+
+    error, metrics, historical_plot = None, {}, {}
+    prediction_plot, pred_table, overall_pct_str = None, None, None
+    trading_signal, signal_reason, signal_confidence = None, None, None
 
     if df.empty:
-        error = f"No data available for {ticker}. Check Yahoo Finance or DB connection."
+        error = f"No data for {ticker}."
     else:
-        df_tail = df[['Close', 'Volume', 'MA20', 'MA50', 'Volatility']].tail(10).to_html(index=True, classes='table table-striped')
-        
-        # Historical Plot
-        for period in ['1M', '6M', '1Y', '5Y']:
+        # Historical Plots
+        for period, days in zip(['1M', '6M', '1Y', '5Y'], [30, 126, 252, len(df)]):
             fig, ax = plt.subplots(figsize=(10, 5))
-            if period == '1M':
-                df_plot = df[-30:]
-            elif period == '6M':
-                df_plot = df[-126:]
-            elif period == '1Y':
-                df_plot = df[-252:]
-            else:
-                df_plot = df
+            df_plot = df[-days:]
             ax.plot(df_plot.index, df_plot['Close'], label='Close Price', color='blue')
-            ax.set_title(f'{ticker} Historical Close Price ({period})')
-            ax.set_xlabel('Date')
-            ax.set_ylabel('Price (USD)')
-            ax.legend()
-            ax.grid(True)
-            buf = BytesIO()
-            fig.savefig(buf, format='png')
-            buf.seek(0)
+            ax.set_title(f'{ticker} Close Price ({period})')
+            ax.legend(); ax.grid(True)
+            buf = BytesIO(); fig.savefig(buf, format='png'); buf.seek(0)
             historical_plot[period] = base64.b64encode(buf.getvalue()).decode()
             plt.close(fig)
 
-        # Predictions
-        if request.method == 'POST':
+        # Train/update model
+        model_path = f"{ticker}_{MODEL_PATH}"
+        model, metrics = train_or_update_model(df, model_path)
+
+        if request.method == 'POST' and model:
             horizon = request.form.get('horizon', 'day')
             steps_map = {'day': 1, 'week': 5, 'month': 20, 'quarter': 63, 'year': 252}
             steps = steps_map.get(horizon, 1)
 
-            model_path = f"{ticker}_{MODEL_PATH}"
-            if os.path.exists(model_path):
-                model = load_model(model_path)
-                scaler = MinMaxScaler(feature_range=(0, 1))
-                scaler.fit(df[TARGET].values.reshape(-1, 1))
-                series_scaled = scaler.transform(df[TARGET].values.reshape(-1, 1))
-                if len(series_scaled) < LOOKBACK:
-                    pred_table = "<p>Not enough data for predictions.</p>"
-                else:
-                    last_sequence = series_scaled[-LOOKBACK:]
-                    preds, lower_bounds, upper_bounds = generate_predictions(model, scaler, last_sequence, steps)
-                    future_dates = get_future_dates(df.index[-1], steps)
-                    last_close = df['Close'].iloc[-1]
-                    pred_df = pd.DataFrame({
-                        'Date': future_dates,
-                        'Estimated Close': np.round(preds, 2),
-                        '% Change': np.round((preds - last_close) / last_close * 100, 2),
-                        'Lower Bound (95% CI)': np.round(lower_bounds, 2),
-                        'Upper Bound (95% CI)': np.round(upper_bounds, 2)
-                    })
-                    pred_table = pred_df.to_html(index=False, classes='table table-striped')
+            scaler = MinMaxScaler(feature_range=(0, 1))
+            scaler.fit(df[TARGET].values.reshape(-1, 1))
+            series_scaled = scaler.transform(df[TARGET].values.reshape(-1, 1))
 
-                    # Overall % change
-                    final_pred = preds[-1] if steps > 0 else last_close
-                    overall_pct = (final_pred - last_close) / last_close * 100
-                    overall_pct_str = f"{overall_pct:.2f}% {'increase' if overall_pct >= 0 else 'decrease'}"
+            if len(series_scaled) >= LOOKBACK:
+                last_sequence = series_scaled[-LOOKBACK:]
+                recent_volatility = df['Volatility'].iloc[-1] if 'Volatility' in df.columns else 0.1
+                preds, lower_bounds, upper_bounds = generate_predictions(
+                    model, scaler, last_sequence, steps, recent_volatility
+                )
+                future_dates = get_future_dates(df.index[-1], steps)
+                last_close = df['Close'].iloc[-1]
 
-                    # Prediction Plot
-                    fig_pred, ax_pred = plt.subplots(figsize=(10, 5))
-                    ax_pred.plot(df.index[-100:], df['Close'][-100:], label='Historical Trend', color='blue')
-                    ax_pred.plot(pred_df['Date'], pred_df['Estimated Close'], label='Predicted (GRU)', color='red')
-                    ax_pred.fill_between(pred_df['Date'], pred_df['Lower Bound (95% CI)'], pred_df['Upper Bound (95% CI)'], 
-                                       color='red', alpha=0.1, label='95% Confidence Interval')
-                    ax_pred.set_title(f'{ticker} Predicted Close Price for Next {horizon.capitalize()} (GRU Model)')
-                    ax_pred.set_xlabel('Date')
-                    ax_pred.set_ylabel('Price (USD)')
-                    ax_pred.legend()
-                    ax_pred.grid(True)
-                    buf_pred = BytesIO()
-                    fig_pred.savefig(buf_pred, format='png')
-                    buf_pred.seek(0)
-                    prediction_plot = base64.b64encode(buf_pred.getvalue()).decode()
-                    plt.close(fig_pred)
-            else:
-                pred_table = "<p>Model not trained yet. It will train automatically on schedule.</p>"
+                pred_df = pd.DataFrame({
+                    'Date': future_dates,
+                    'Estimated Close': np.round(preds, 2),
+                    '% Change': np.round((preds - last_close) / last_close * 100, 2),
+                    'Lower Bound (95% CI)': np.round(lower_bounds, 2),
+                    'Upper Bound (95% CI)': np.round(upper_bounds, 2)
+                })
+                pred_table = pred_df.to_html(index=False, classes='table table-striped')
 
-    return render_template('dashboard.html', error=error, historical_plot=historical_plot, df_tail=df_tail, 
-                           results=results, prediction_plot=prediction_plot, pred_table=pred_table, 
-                           overall_pct=overall_pct_str, selected_ticker=ticker, term=term)
+                final_pred = preds[-1]
+                overall_pct = (final_pred - last_close) / last_close * 100
+                overall_pct_str = f"{overall_pct:.2f}% {'increase' if overall_pct >= 0 else 'decrease'}"
+
+                trading_signal, signal_reason, signal_confidence = generate_trading_signal(
+                    last_close, final_pred, overall_pct, recent_volatility,
+                    lower_bounds[-1], upper_bounds[-1]
+                )
+
+                fig_pred, ax_pred = plt.subplots(figsize=(10, 5))
+                ax_pred.plot(df.index[-100:], df['Close'][-100:], label='Historical', color='blue')
+                ax_pred.plot(pred_df['Date'], pred_df['Estimated Close'], label='Predicted', color='red')
+                ax_pred.fill_between(pred_df['Date'], pred_df['Lower Bound (95% CI)'],
+                                     pred_df['Upper Bound (95% CI)'], color='red', alpha=0.1,
+                                     label='95% CI')
+                ax_pred.set_title(f'{ticker} Prediction ({horizon})')
+                ax_pred.legend(); ax_pred.grid(True)
+                buf_pred = BytesIO(); fig_pred.savefig(buf_pred, format='png'); buf_pred.seek(0)
+                prediction_plot = base64.b64encode(buf_pred.getvalue()).decode()
+                plt.close(fig_pred)
+
+    # check if admin mode
+    admin = request.args.get("admin", "0") == "1"
+
+    return render_template(
+        'dashboard.html',
+        error=error,
+        historical_plot=historical_plot,
+        df_tail=df.tail(10).to_html(classes="table table-sm") if not df.empty else None,
+        prediction_plot=prediction_plot,
+        pred_table=pred_table,
+        overall_pct=overall_pct_str,
+        selected_ticker=ticker,
+        term=term,
+        trading_signal=trading_signal,
+        signal_reason=signal_reason,
+        signal_confidence=signal_confidence,
+        metrics=metrics if admin else None
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)

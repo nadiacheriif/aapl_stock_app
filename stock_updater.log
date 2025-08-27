@@ -94,3 +94,90 @@
 2025-08-21 08:06:16,153 [INFO] Daily scheduler started (non-blocking). Waiting for jobs...
 2025-08-21 08:06:16,153 [INFO] Added job "fetch_and_store_daily" to job store "default"
 2025-08-21 08:06:16,153 [INFO] Scheduler started
+2025-08-24 07:02:04,997 [INFO] Database is empty. Fetching 5 years of historical data...
+2025-08-24 07:02:05,013 [INFO] Fetching data for stock: AAPL from 2020-08-25 to 2025-08-24...
+2025-08-24 07:02:09,218 [INFO] Inserted/updated 1255 rows for AAPL in D:/AAPL_STOCK_APP/AAPL.db.
+2025-08-24 07:02:09,275 [INFO] Sample data for AAPL:
+         Date Stock        Open        High         Low       Close   Adj_Close     Volume  Daily_Return  Volatility  MA20  MA50  Sharpe_Ratio
+0  2020-08-25  AAPL  124.697502  125.180000  123.052498  124.824997  121.419495  211495600           NaN         NaN   NaN   NaN           NaN
+1  2020-08-26  AAPL  126.180000  126.992500  125.082497  126.522499  123.070679  163022400      0.013599         NaN   NaN   NaN           NaN
+2  2020-08-27  AAPL  127.142502  127.485001  123.832497  125.010002  121.599449  155552400     -0.011954         NaN   NaN   NaN           NaN
+3  2020-08-28  AAPL  126.012497  126.442497  124.577499  124.807503  121.402473  187630000     -0.001620         NaN   NaN   NaN           NaN
+4  2020-08-31  AAPL  127.580002  131.000000  126.000000  129.039993  125.519524  225702700      0.033912         NaN   NaN   NaN           NaN
+2025-08-24 07:02:09,279 [INFO] Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2025-08-24 07:02:09,279 [INFO] Daily scheduler started (non-blocking). Waiting for jobs...
+2025-08-24 07:02:09,279 [INFO] Added job "fetch_and_store_daily" to job store "default"
+2025-08-24 07:02:09,279 [INFO] Scheduler started
+2025-08-24 07:51:04,833 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-24 07:51:04,833 [INFO] [33mPress CTRL+C to quit[0m
+2025-08-24 07:51:04,835 [INFO]  * Restarting with stat
+2025-08-24 07:51:09,785 [WARNING]  * Debugger is active!
+2025-08-24 07:51:09,786 [INFO]  * Debugger PIN: 431-673-064
+2025-08-24 07:51:18,290 [WARNING] You are saving your model as an HDF5 file via `model.save()` or `keras.saving.save_model(model)`. This file format is considered legacy. We recommend using instead the native Keras format, e.g. `model.save('my_model.keras')` or `keras.saving.save_model(model, 'my_model.keras')`. 
+2025-08-24 07:51:18,343 [INFO] Model saved/updated. Last RMSE: 101.04
+2025-08-24 07:51:18,354 [INFO] 127.0.0.1 - - [24/Aug/2025 07:51:18] "GET / HTTP/1.1" 200 -
+2025-08-24 07:51:38,131 [WARNING] Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2025-08-24 07:56:19,232 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-24 07:56:19,232 [INFO] [33mPress CTRL+C to quit[0m
+2025-08-24 07:56:19,232 [INFO]  * Restarting with stat
+2025-08-24 07:56:23,642 [WARNING]  * Debugger is active!
+2025-08-24 07:56:23,644 [INFO]  * Debugger PIN: 431-673-064
+2025-08-24 07:56:42,882 [INFO] 127.0.0.1 - - [24/Aug/2025 07:56:42] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-08-24 07:56:42,981 [INFO] 127.0.0.1 - - [24/Aug/2025 07:56:42] "GET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2025-08-24 07:56:43,008 [INFO] 127.0.0.1 - - [24/Aug/2025 07:56:43] "GET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2025-08-24 07:56:43,052 [INFO] 127.0.0.1 - - [24/Aug/2025 07:56:43] "GET /?__debugger__=yes&cmd=resource&f=console.png&s=gwVfbvdm0zHnT5hEqAjH HTTP/1.1" 200 -
+2025-08-24 07:56:43,061 [INFO] 127.0.0.1 - - [24/Aug/2025 07:56:43] "GET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2025-08-24 07:59:59,615 [INFO]  * Detected change in 'D:\\Users\\Nadia\\MyProjects\\aapl_stock_app\\app.py', reloading
+2025-08-24 08:00:00,196 [INFO]  * Restarting with stat
+2025-08-24 08:00:57,883 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-08-24 08:00:57,883 [INFO] [33mPress CTRL+C to quit[0m
+2025-08-24 08:00:57,885 [INFO]  * Restarting with stat
+2025-08-24 08:01:03,113 [WARNING]  * Debugger is active!
+2025-08-24 08:01:03,114 [INFO]  * Debugger PIN: 431-673-064
+2025-08-24 08:01:10,262 [INFO] Model saved/updated. Last RMSE: 100.65
+2025-08-24 08:01:10,271 [INFO] 127.0.0.1 - - [24/Aug/2025 08:01:10] "GET / HTTP/1.1" 200 -
+2025-08-24 08:01:15,172 [INFO] Model saved/updated. Last RMSE: 100.65
+2025-08-24 08:01:15,349 [INFO] 127.0.0.1 - - [24/Aug/2025 08:01:15] "POST / HTTP/1.1" 200 -
+2025-08-24 08:25:03,814 [INFO]  * Detected change in 'D:\\Users\\Nadia\\MyProjects\\aapl_stock_app\\app.py', reloading
+2025-08-24 08:25:04,484 [INFO]  * Restarting with stat
+2025-08-24 08:25:09,448 [WARNING]  * Debugger is active!
+2025-08-24 08:25:09,451 [INFO]  * Debugger PIN: 431-673-064
+2025-08-24 08:25:13,823 [INFO]  * Detected change in 'D:\\Users\\Nadia\\MyProjects\\aapl_stock_app\\app.py', reloading
+2025-08-24 08:25:14,402 [INFO]  * Restarting with stat
+2025-08-24 08:25:19,550 [WARNING]  * Debugger is active!
+2025-08-24 08:25:19,551 [INFO]  * Debugger PIN: 431-673-064
+2025-08-24 08:46:32,457 [INFO] Model saved/updated. Last RMSE: 100.65
+2025-08-24 08:46:32,908 [INFO] 127.0.0.1 - - [24/Aug/2025 08:46:32] "POST / HTTP/1.1" 200 -
+2025-08-24 08:47:12,158 [INFO]  * Detected change in 'D:\\Users\\Nadia\\MyProjects\\aapl_stock_app\\app.py', reloading
+2025-08-24 08:47:12,791 [INFO]  * Restarting with stat
+2025-08-24 08:47:17,666 [WARNING]  * Debugger is active!
+2025-08-24 08:47:17,666 [INFO]  * Debugger PIN: 431-673-064
+2025-08-24 08:47:24,180 [INFO]  * Detected change in 'D:\\Users\\Nadia\\MyProjects\\aapl_stock_app\\app.py', reloading
+2025-08-24 08:47:24,770 [INFO]  * Restarting with stat
+2025-08-24 08:47:29,769 [WARNING]  * Debugger is active!
+2025-08-24 08:47:29,769 [INFO]  * Debugger PIN: 431-673-064
+2025-08-24 08:48:14,473 [INFO] Model adjusted due to high RMSE: 100.65
+2025-08-24 08:48:14,504 [INFO] Model saved/updated. Last RMSE: 100.65
+2025-08-24 08:48:14,921 [INFO] 127.0.0.1 - - [24/Aug/2025 08:48:14] "POST / HTTP/1.1" 200 -
+2025-08-24 08:48:59,092 [INFO] Model saved/updated. Last RMSE: 6.57
+2025-08-24 08:48:59,246 [INFO] 127.0.0.1 - - [24/Aug/2025 08:48:59] "POST / HTTP/1.1" 200 -
+2025-08-24 08:49:39,282 [WARNING] 5 out of the last 15 calls to <function TensorFlowTrainer.make_predict_function.<locals>.one_step_on_data_distributed at 0x000001E23BF46840> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+2025-08-24 08:49:51,315 [INFO] Model adjusted due to high RMSE: 6.57
+2025-08-24 08:49:51,334 [INFO] Model saved/updated. Last RMSE: 6.57
+2025-08-24 08:49:51,485 [INFO] 127.0.0.1 - - [24/Aug/2025 08:49:51] "POST / HTTP/1.1" 200 -
+2025-08-24 08:58:05,268 [INFO]  * Detected change in 'D:\\Users\\Nadia\\MyProjects\\aapl_stock_app\\app.py', reloading
+2025-08-24 08:58:06,069 [INFO]  * Restarting with stat
+2025-08-24 08:58:11,052 [WARNING]  * Debugger is active!
+2025-08-24 08:58:11,054 [INFO]  * Debugger PIN: 431-673-064
+2025-08-24 08:58:34,566 [INFO]  * Detected change in 'D:\\Users\\Nadia\\MyProjects\\aapl_stock_app\\app.py', reloading
+2025-08-24 08:58:35,144 [INFO]  * Restarting with stat
+2025-08-24 08:58:39,806 [WARNING]  * Debugger is active!
+2025-08-24 08:58:39,806 [INFO]  * Debugger PIN: 431-673-064
+2025-08-24 08:59:06,523 [INFO] 127.0.0.1 - - [24/Aug/2025 08:59:06] "POST / HTTP/1.1" 200 -
+2025-08-24 08:59:30,941 [INFO] 127.0.0.1 - - [24/Aug/2025 08:59:30] "POST / HTTP/1.1" 200 -
+2025-08-24 08:59:50,215 [INFO] 127.0.0.1 - - [24/Aug/2025 08:59:50] "POST / HTTP/1.1" 200 -
+2025-08-24 09:00:45,951 [INFO] 127.0.0.1 - - [24/Aug/2025 09:00:45] "POST / HTTP/1.1" 200 -
+2025-08-24 09:01:47,286 [INFO] 127.0.0.1 - - [24/Aug/2025 09:01:47] "POST / HTTP/1.1" 200 -
